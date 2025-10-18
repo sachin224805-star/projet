@@ -6,6 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
+import com.weconnect.dto.ReportDTO;
+
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.List;
@@ -26,17 +29,17 @@ public class ReportController {
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody Map<String, String> body, HttpServletRequest req) {
+    public ResponseEntity<?> create(@Valid @RequestBody ReportDTO body, HttpServletRequest req) {
         String userId = (String) req.getAttribute("userId");
         if (userId == null) return ResponseEntity.status(401).body(Map.of("message", "Authentication required"));
 
         Report r = new Report();
-        r.setSubject(body.get("subject"));
-        r.setSubjectLabel(body.get("subjectLabel"));
-        r.setTitle(body.get("title"));
-        r.setDetails(body.get("details"));
-        r.setLocation(body.get("location"));
-        r.setFileUrl(body.get("fileUrl"));
+        r.setSubject(body.subject);
+        r.setSubjectLabel(body.subjectLabel);
+        r.setTitle(body.title);
+        r.setDetails(body.details);
+        r.setLocation(body.location);
+        r.setFileUrl(body.fileUrl);
         r.setUserId(userId);
         r.setCreatedAt(new Date());
         r.setUpdatedAt(new Date());

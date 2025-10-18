@@ -7,9 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.util.HashMap;
 import java.util.Map;
+import com.weconnect.dto.AuthDTOs;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -21,11 +23,11 @@ public class AuthController {
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody Map<String, String> body) {
+    public ResponseEntity<?> register(@Valid @RequestBody AuthDTOs.Register body) {
         try {
-            String name = body.get("name");
-            String phone = body.get("phone");
-            String password = body.get("password");
+            String name = body.name;
+            String phone = body.phone;
+            String password = body.password;
 
             if (userRepository.findByPhone(phone).isPresent()) {
                 return ResponseEntity.badRequest().body(Map.of("message", "User already exists"));
@@ -50,10 +52,10 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> body) {
+    public ResponseEntity<?> login(@Valid @RequestBody AuthDTOs.Login body) {
         try {
-            String phone = body.get("phone");
-            String password = body.get("password");
+            String phone = body.phone;
+            String password = body.password;
             var opt = userRepository.findByPhone(phone);
             if (opt.isEmpty()) return ResponseEntity.badRequest().body(Map.of("message", "Invalid credentials"));
 
