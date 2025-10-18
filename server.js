@@ -36,9 +36,11 @@ const seedAdmin = async () => {
       await admin.save();
       console.log(`Admin user created (phone=${adminPhone})`);
     } else if (admin.role !== 'admin') {
+      // promote existing user to admin and update password to the provided ADMIN_PASS
       admin.role = 'admin';
+      admin.password = adminPass; // will be hashed by pre-save hook
       await admin.save();
-      console.log(`User promoted to admin (phone=${adminPhone})`);
+      console.log(`User promoted to admin and password updated (phone=${adminPhone})`);
     } else {
       console.log('Admin user already exists');
     }
