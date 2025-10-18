@@ -19,6 +19,39 @@ mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('MongoDB connection error:', err));
 
+// Admin seeder: create or promote an admin user if ADMIN_PHONE and ADMIN_PASS are set
+const seedAdmin = async () => {
+  try {
+    const User = require('./models/User');
+    const adminPhone = process.env.ADMIN_PHONE;
+    const adminPass = process.env.ADMIN_PASS;
+    if (!adminPhone || !adminPass) {
+      console.log('ADMIN_PHONE/ADMIN_PASS not set — skipping admin seeder');
+      return;
+    }
+
+    let admin = await User.findOne({ phone: adminPhone });
+    if (!admin) {
+      admin = new User({ name: 'admin', phone: adminPhone, password: adminPass, role: 'admin' });
+      await admin.save();
+      console.log(`Admin user created (phone=${adminPhone})`);
+    } else if (admin.role !== 'admin') {
+      admin.role = 'admin';
+      await admin.save();
+      console.log(`User promoted to admin (phone=${adminPhone})`);
+    } else {
+      console.log('Admin user already exists');
+    }
+  } catch (err) {
+    console.error('Admin seeder error:', err);
+  }
+};
+
+// Run seeder after initial connection
+mongoose.connection.once('open', () => {
+  seedAdmin();
+});
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/reports', reportRoutes);
